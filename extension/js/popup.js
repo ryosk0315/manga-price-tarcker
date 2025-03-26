@@ -14,6 +14,9 @@ const historyList = document.getElementById('historyList');
 const optionsButton = document.getElementById('optionsButton');
 const tabButtons = document.querySelectorAll('.tab-button');
 
+// APIエンドポイント
+const API_BASE_URL = 'https://manga-price-tarcker.vercel.app/api';
+
 // 現在の検索結果
 let currentSearchResult = null;
 
@@ -55,7 +58,7 @@ async function performSearch() {
   const title = searchInput.value.trim();
   
   if (!title) {
-    showError('Please enter a manga title');
+    showError('漫画のタイトルを入力してください');
     return;
   }
   
@@ -64,11 +67,9 @@ async function performSearch() {
   hideError();
   
   try {
-    // バックグラウンドスクリプトに検索を依頼
-    const result = await sendMessage({
-      type: 'searchManga',
-      title
-    });
+    // APIから検索結果を取得
+    const response = await fetch(`${API_BASE_URL}/search?title=${encodeURIComponent(title)}`);
+    const result = await response.json();
     
     if (result.error) {
       showError(result.error);
@@ -85,11 +86,14 @@ async function performSearch() {
       results: result
     };
     
+    // 検索履歴に追加
+    addToHistory(currentSearchResult);
+    
     // お気に入りボタン表示
     addToFavoritesButton.classList.remove('hidden');
     
   } catch (error) {
-    showError(error.message || 'Search failed');
+    showError(error.message || '検索に失敗しました');
   } finally {
     hideLoading();
   }
@@ -106,10 +110,9 @@ function displaySearchResults(title, results) {
     <table>
       <thead>
         <tr>
-          <th>Store</th>
-          <th>Price</th>
-          <th>Currency</th>
-          <th>Link</th>
+          <th>ストア</th>
+          <th>価格</th>
+          <th>リンク</th>
         </tr>
       </thead>
       <tbody>
@@ -118,26 +121,23 @@ function displaySearchResults(title, results) {
   // 各ストアの結果を追加
   let hasResults = false;
   
-  for (const store in results) {
-    const storeData = results[store];
+  if (results.stores && Array.isArray(results.stores)) {
+    hasResults = results.stores.length > 0;
     
-    if (storeData && storeData.price) {
-      hasResults = true;
-      
+    results.stores.forEach(store => {
       html += `
         <tr>
-          <td>${store}</td>
-          <td>${storeData.price}</td>
-          <td>${storeData.currency || 'JPY'}</td>
+          <td>${store.store}</td>
+          <td>${store.price}円</td>
           <td>
-            ${storeData.url 
-              ? `<a href="${storeData.url}" target="_blank">View</a>`
-              : 'N/A'
+            ${store.url 
+              ? `<a href="${store.url}" target="_blank">開く</a>`
+              : '利用不可'
             }
           </td>
         </tr>
       `;
-    }
+    });
   }
   
   html += `
@@ -146,11 +146,39 @@ function displaySearchResults(title, results) {
   `;
   
   if (!hasResults) {
-    html = `<p>No results found for "${title}"</p>`;
+    html = `<p>"${title}"の検索結果が見つかりませんでした</p>`;
   }
   
   // HTMLを挿入
   resultsTable.innerHTML = html;
+}
+
+// 履歴に追加
+async function addToHistory(searchData) {
+  try {
+    // ローカルストレージから既存の履歴を取得
+    const { searchHistory = [] } = await chrome.storage.local.get('searchHistory');
+    
+    // 新しい検索を先頭に追加
+    searchHistory.unshift({
+      ...searchData,
+      timestamp: new Date().toISOString()
+    });
+    
+    // 最大20件に制限
+    if (searchHistory.length > 20) {
+      searchHistory.pop();
+    }
+    
+    // 更新された履歴を保存
+    await chrome.storage.local.set({ searchHistory });
+    
+    // 履歴表示を更新
+    loadHistory();
+    
+  } catch (error) {
+    console.error('履歴の保存に失敗しました:', error);
+  }
 }
 
 // お気に入りに追加

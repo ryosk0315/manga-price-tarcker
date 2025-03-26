@@ -4,69 +4,48 @@
 // In-memory storage (for demo purposes only - will reset on each deployment)
 const searchHistory = {};
 
-module.exports = async (req, res) => {
-  // CORS headers
+// 検索履歴API
+export default function handler(req, res) {
+  // CORS設定
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
-  // Handle preflight request
+  // OPTIONSリクエストの処理
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
   
-  // Handle POST request to save search history
-  if (req.method === 'POST') {
-    try {
-      const { userId, search } = req.body;
-      
-      if (!userId || !search) {
-        return res.status(400).json({ error: 'Missing userId or search data' });
-      }
-      
-      // Initialize user history if not exists
-      if (!searchHistory[userId]) {
-        searchHistory[userId] = [];
-      }
-      
-      // Add search to user's history
-      searchHistory[userId].unshift({
-        id: search.id || Date.now().toString(),
-        title: search.title,
-        timestamp: search.timestamp || new Date().toISOString(),
-        results: search.results
-      });
-      
-      // Limit to 20 entries per user
-      if (searchHistory[userId].length > 20) {
-        searchHistory[userId] = searchHistory[userId].slice(0, 20);
-      }
-      
-      return res.status(200).json({ success: true });
-    } catch (error) {
-      console.error('Error saving search history:', error);
-      return res.status(500).json({ error: 'Failed to save search history' });
-    }
-  }
+  // 注意: 実際のプロダクション環境では、サーバーサイドでのユーザー認証が必要です
+  // 現時点ではクライアントサイドで履歴管理を行うためのモックレスポンスを返します
   
-  // Handle GET request to retrieve search history
+  // GETリクエスト - 履歴の取得（モック）
   if (req.method === 'GET') {
-    try {
-      const { userId } = req.query;
-      
-      if (!userId) {
-        return res.status(400).json({ error: 'Missing userId parameter' });
-      }
-      
-      // Return user's history or empty array if none
-      return res.status(200).json(searchHistory[userId] || []);
-    } catch (error) {
-      console.error('Error retrieving search history:', error);
-      return res.status(500).json({ error: 'Failed to retrieve search history' });
-    }
+    return res.status(200).json({
+      message: '履歴はクライアントサイドのローカルストレージで管理されます',
+      instructions: 'このAPIはテスト用です。実際のデータはブラウザのローカルストレージに保存されます。'
+    });
   }
   
-  // Method not allowed
-  return res.status(405).json({ error: 'Method not allowed' });
-}; 
+  // POSTリクエスト - 履歴の追加（モック）
+  if (req.method === 'POST') {
+    return res.status(200).json({
+      message: '履歴が追加されました（モック）',
+      status: 'success'
+    });
+  }
+  
+  // DELETEリクエスト - 履歴の削除（モック）
+  if (req.method === 'DELETE') {
+    return res.status(200).json({
+      message: '履歴が削除されました（モック）',
+      status: 'success'
+    });
+  }
+  
+  // その他のHTTPメソッドは許可しない
+  return res.status(405).json({ 
+    error: 'Method not allowed',
+    message: 'このエンドポイントはGET, POST, DELETEリクエストのみサポートしています'
+  });
+} 

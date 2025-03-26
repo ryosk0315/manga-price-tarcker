@@ -9,9 +9,11 @@
     "notifications"
   ],
   "host_permissions": [
-    "https://www.amazon.com/*",
-    "https://bookwalker.jp/*",
-    "https://www.rightstufanime.com/*"
+    "https://manga-price-tarcker.vercel.app/*",
+    "https://www.amazon.co.jp/*",
+    "https://books.rakuten.co.jp/*",
+    "https://ebookjapan.yahoo.co.jp/*",
+    "https://www.cmoa.jp/*"
   ],
   "background": {
     "service_worker": "background.js"

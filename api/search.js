@@ -1,12 +1,12 @@
 // Vercel Serverless Function for manga search
-const axios = require('axios');
-const { JSDOM } = require('jsdom');
-const { getExchangeRates } = require('./utils/currency');
+import axios from 'axios';
+import { JSDOM } from 'jsdom';
+// import { getExchangeRates } from './utils/currency';
 
-// Scraper modules
-const amazonScraper = require('./scrapers/amazon');
-const bookwalkerScraper = require('./scrapers/bookwalker');
-const rightstufScraper = require('./scrapers/rightstuf');
+// Scraper modules (実装時にコメントアウトを解除)
+// const amazonScraper = require('./scrapers/amazon');
+// const bookwalkerScraper = require('./scrapers/bookwalker');
+// const rightstufScraper = require('./scrapers/rightstuf');
 
 // Search cache (in-memory, will reset on each deployment)
 let searchCache = {};
@@ -17,7 +17,7 @@ const CACHE_DURATION = 60 * 60 * 1000;
 /**
  * Main search API handler
  */
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -31,14 +31,20 @@ module.exports = async (req, res) => {
   
   // Only support GET requests
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ 
+      error: 'Method not allowed',
+      message: 'このエンドポイントはGETリクエストのみサポートしています'
+    });
   }
   
   // Get search query
   const { title, currency } = req.query;
   
   if (!title) {
-    return res.status(400).json({ error: 'Missing title parameter' });
+    return res.status(400).json({ 
+      error: 'Bad Request',
+      message: 'タイトルパラメータが必要です（例: /api/search?title=鬼滅の刃）'
+    });
   }
   
   // Cache key
@@ -53,6 +59,16 @@ module.exports = async (req, res) => {
   try {
     console.log('Searching for', title);
     
+    // 本番環境では実際のスクレイピングを行うが、現段階ではモックデータを使用
+    const mockResults = await getMockResults(title);
+    
+    const results = {
+      title: title,
+      timestamp: new Date().toISOString(),
+      stores: mockResults
+    };
+    
+    /* 実際のスクレイピング処理 (将来実装)
     // Perform parallel searches across all stores
     const [amazonResults, bookwalkerResults, rightstufResults] = await Promise.allSettled([
       amazonScraper.search(title),
@@ -95,6 +111,7 @@ module.exports = async (req, res) => {
         // Continue without conversion if it fails
       }
     }
+    */
     
     // Cache the results
     searchCache[cacheKey] = {
@@ -115,7 +132,49 @@ module.exports = async (req, res) => {
     return res.status(200).json(results);
     
   } catch (error) {
-    console.error('Search error:', error);
-    return res.status(500).json({ error: 'An error occurred during search' });
+    console.error('検索エラー:', error);
+    return res.status(500).json({ 
+      error: 'Internal Server Error',
+      message: 'サーバー内部でエラーが発生しました。しばらく待ってから再試行してください。'
+    });
   }
-}; 
+}
+
+// モックデータを返す関数（開発用）
+async function getMockResults(title) {
+  // 実際のスクレイピングの代わりにモックデータを返す
+  return [
+    {
+      store: 'Amazon',
+      title: `${title} 1巻`,
+      price: 418,
+      url: `https://www.amazon.co.jp/s?k=${encodeURIComponent(title)}`,
+      availability: true,
+      imageUrl: 'https://via.placeholder.com/200x300?text=Amazon'
+    },
+    {
+      store: '楽天ブックス',
+      title: `${title} 1巻`,
+      price: 429,
+      url: `https://books.rakuten.co.jp/search?sty=on&g=001&vw=grid&s=1&o=0&k=${encodeURIComponent(title)}`,
+      availability: true,
+      imageUrl: 'https://via.placeholder.com/200x300?text=楽天'
+    },
+    {
+      store: 'ebookjapan',
+      title: `${title} 1巻（電子書籍）`,
+      price: 400,
+      url: `https://ebookjapan.yahoo.co.jp/search/?keyword=${encodeURIComponent(title)}`,
+      availability: true,
+      imageUrl: 'https://via.placeholder.com/200x300?text=ebookjapan'
+    },
+    {
+      store: 'コミックシーモア',
+      title: `${title} 1巻（電子書籍）`,
+      price: 396,
+      url: `https://www.cmoa.jp/search/?category=searchTitle&word=${encodeURIComponent(title)}`,
+      availability: true,
+      imageUrl: 'https://via.placeholder.com/200x300?text=シーモア'
+    }
+  ];
+} 
