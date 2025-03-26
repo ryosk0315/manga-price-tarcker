@@ -3,6 +3,7 @@ const searchHandler = require('./api/search');
 const testSearchHandler = require('./api/test-search');
 const historyHandler = require('./api/history');
 const favoritesHandler = require('./api/favorites');
+const helloHandler = require('./api/hello');
 
 // ルーティング
 module.exports = (req, res) => {
@@ -19,6 +20,10 @@ module.exports = (req, res) => {
   }
   
   // URLに基づいて適切なハンドラーにルーティング
+  if (url.startsWith('/api/hello')) {
+    return helloHandler(req, res);
+  }
+  
   if (url.startsWith('/api/search')) {
     return searchHandler(req, res);
   }
