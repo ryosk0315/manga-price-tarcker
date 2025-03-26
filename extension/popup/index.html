@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manga Price Tracker</title>
+  <link rel="stylesheet" href="../css/popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Manga Price Tracker</h1>
+    </header>
+    
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Enter manga title..." />
+      <button id="searchButton">Search</button>
+    </div>
+    
+    <div id="loadingIndicator" class="hidden">
+      <div class="spinner"></div>
+      <p>Searching...</p>
+    </div>
+    
+    <div id="errorContainer" class="hidden">
+      <p id="errorMessage"></p>
+    </div>
+    
+    <div id="resultsContainer" class="hidden">
+      <h2>Search Results</h2>
+      <div id="resultsTable"></div>
+      <button id="addToFavoritesButton" class="hidden">Add to Favorites</button>
+    </div>
+    
+    <div class="tabs">
+      <button class="tab-button active" data-tab="search">Search</button>
+      <button class="tab-button" data-tab="favorites">Favorites</button>
+      <button class="tab-button" data-tab="history">History</button>
+    </div>
+    
+    <div id="favoritesContainer" class="tab-content hidden">
+      <h2>Your Favorites</h2>
+      <div id="favoritesList"></div>
+    </div>
+    
+    <div id="historyContainer" class="tab-content hidden">
+      <h2>Search History</h2>
+      <div id="historyList"></div>
+    </div>
+    
+    <footer>
+      <button id="optionsButton">Options</button>
+    </footer>
+  </div>
+  
+  <script src="../js/popup.js"></script>
+</body>
+</html> 

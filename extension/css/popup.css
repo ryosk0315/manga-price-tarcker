@@ -1,0 +1,215 @@
+/* ポップアップ全体のスタイル */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.container {
+  width: 400px;
+  min-height: 300px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ヘッダー */
+header {
+  background-color: #4a148c;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+h2 {
+  font-size: 16px;
+  margin: 15px 0 10px;
+  color: #4a148c;
+}
+
+/* 検索部分 */
+.search-container {
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+input[type="text"] {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+button {
+  background-color: #7b1fa2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #9c27b0;
+}
+
+/* 結果表示部分 */
+#resultsContainer,
+#favoritesContainer,
+#historyContainer {
+  padding: 0 15px 15px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* テーブルスタイル */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+/* スピナー（ローディング） */
+#loadingIndicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #7b1fa2;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* エラーメッセージ */
+#errorContainer {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  margin: 10px 15px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+#errorContainer.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* タブ */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  background-color: #f5f5f5;
+  margin-top: 15px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  background-color: transparent;
+  color: #666;
+  border: none;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-button.active {
+  color: #7b1fa2;
+  border-bottom: 2px solid #7b1fa2;
+  background-color: #fff;
+}
+
+.tab-content {
+  padding: 15px;
+}
+
+/* リストスタイル */
+.favorites-list,
+.history-list {
+  list-style-type: none;
+}
+
+.favorite-item,
+.history-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+}
+
+.manga-title {
+  flex: 1;
+  font-weight: bold;
+}
+
+.search-date {
+  font-size: 12px;
+  color: #999;
+  margin-right: 10px;
+}
+
+.view-button,
+.remove-button,
+.search-again-button {
+  margin-left: 5px;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+/* フッター */
+footer {
+  padding: 15px;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+#optionsButton {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+#optionsButton:hover {
+  background-color: #eee;
+} 
