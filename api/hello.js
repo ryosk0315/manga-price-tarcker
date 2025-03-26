@@ -1,5 +1,5 @@
 // シンプルなテスト用API
-module.exports = (req, res) => {
+export default function handler(req, res) {
   // CORS設定
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -21,4 +21,4 @@ module.exports = (req, res) => {
     timestamp: new Date().toISOString(),
     status: 'OK'
   });
-}; 
+} 

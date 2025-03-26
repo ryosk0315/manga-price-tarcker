@@ -12,9 +12,9 @@
     "jsdom": "^21.1.1"
   },
   "devDependencies": {
-    "vercel": "^30.0.0"
+    "vercel": "^31.0.0"
   },
   "engines": {
-    "node": ">=14.x"
+    "node": "18.x"
   }
 } 
