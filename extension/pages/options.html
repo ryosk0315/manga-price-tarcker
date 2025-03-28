@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>漫画価格追跡 - 設定</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 30px;
+      background-color: #f9f9f9;
+    }
+    
+    header {
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+    
+    h2 {
+      color: #2980b9;
+      margin-top: 25px;
+      margin-bottom: 15px;
+    }
+    
+    .settings-section {
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+    
+    input[type="number"] {
+      width: 60px;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+    }
+    
+    select {
+      padding: 5px 10px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      background-color: #fff;
+    }
+    
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+    
+    button:hover {
+      background-color: #2980b9;
+    }
+    
+    .button-group {
+      margin-top: 20px;
+    }
+    
+    .danger-button {
+      background-color: #e74c3c;
+    }
+    
+    .danger-button:hover {
+      background-color: #c0392b;
+    }
+    
+    .success-message {
+      display: none;
+      color: #2ecc71;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f0fff0;
+      border-radius: 4px;
+    }
+    
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+    
+    .warning {
+      color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>漫画価格追跡 - 設定</h1>
+  </header>
+  
+  <main>
+    <div class="settings-section">
+      <h2>通知設定</h2>
+      
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="notifications-enabled">
+          価格値下げの通知を有効にする
+        </label>
+      </div>
+      
+      <div class="form-group">
+        <label for="check-interval">価格チェックの頻度:</label>
+        <select id="check-interval">
+          <option value="12">12時間ごと</option>
+          <option value="24">24時間ごと</option>
+          <option value="48">48時間ごと</option>
+          <option value="72">72時間ごと</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="settings-section">
+      <h2>データ管理</h2>
+      
+      <div class="form-group">
+        <p>お気に入り漫画: <span id="favorites-count">0</span>件</p>
+        <p>検索履歴: <span id="history-count">0</span>件</p>
+      </div>
+      
+      <div class="button-group">
+        <button id="clear-history" class="danger-button">検索履歴を削除</button>
+        <button id="clear-favorites" class="danger-button">お気に入りを削除</button>
+        <button id="export-data">データをエクスポート</button>
+        <button id="import-data">データをインポート</button>
+      </div>
+      
+      <input type="file" id="import-file" style="display: none;">
+    </div>
+    
+    <div class="button-group">
+      <button id="save-settings">設定を保存</button>
+      <div id="save-message" class="success-message">設定が保存されました！</div>
+    </div>
+  </main>
+  
+  <footer>
+    <p>漫画価格追跡 v1.0.0</p>
+    <p>お問い合わせ: <a href="mailto:support@example.com">support@example.com</a></p>
+  </footer>
+  
+  <script src="options.js"></script>
+</body>
+</html> 

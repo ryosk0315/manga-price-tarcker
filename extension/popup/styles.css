@@ -1,0 +1,256 @@
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2980b9;
+  --background-color: #f8f9fa;
+  --text-color: #333;
+  --border-color: #e1e4e8;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --error-color: #e74c3c;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+  width: 360px;
+  min-height: 480px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: var(--text-color);
+  background-color: #fff;
+}
+
+header {
+  padding: 12px 16px;
+  background-color: var(--primary-color);
+  color: white;
+  text-align: center;
+}
+
+h1 {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+main {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.search-container {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+input[type="text"] {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px 0 0 4px;
+  font-size: 14px;
+}
+
+button {
+  cursor: pointer;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: var(--secondary-color);
+}
+
+#search-button {
+  border-radius: 0 4px 4px 0;
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tab-button {
+  background-color: transparent;
+  color: var(--text-color);
+  padding: 8px 16px;
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+  flex: 1;
+}
+
+.tab-button.active {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.tab-content {
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+h2 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: var(--secondary-color);
+}
+
+#loading, #error-message, #no-results {
+  padding: 24px;
+  text-align: center;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-left-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error {
+  color: var(--error-color);
+}
+
+.store-item {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.store-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.store-name {
+  font-size: 16px;
+  color: var(--primary-color);
+}
+
+.store-price {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.store-details {
+  display: flex;
+  justify-content: space-between;
+}
+
+.manga-info {
+  flex: 1;
+}
+
+.manga-title {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.manga-availability {
+  font-size: 12px;
+  color: var(--success-color);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+}
+
+.visit-button {
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.add-favorite {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.add-favorite:hover, .add-favorite.active {
+  color: #e74c3c;
+}
+
+.history-item, .favorite-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.history-title, .favorite-title {
+  flex: 1;
+  font-size: 14px;
+}
+
+.history-actions, .favorite-actions {
+  display: flex;
+}
+
+.history-actions button, .favorite-actions button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 16px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.history-actions button:hover, .favorite-actions button:hover {
+  color: var(--primary-color);
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+#options-button {
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.version {
+  color: #888;
+  font-size: 12px;
+} 

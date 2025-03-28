@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>漫画価格追跡</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>漫画価格追跡</h1>
+  </header>
+  
+  <main>
+    <div class="search-container">
+      <input 
+        type="text" 
+        id="manga-title" 
+        placeholder="漫画のタイトルを入力してください" 
+        autofocus
+      >
+      <button id="search-button">検索</button>
+    </div>
+    
+    <div class="tabs">
+      <button class="tab-button active" data-tab="results">検索結果</button>
+      <button class="tab-button" data-tab="history">履歴</button>
+      <button class="tab-button" data-tab="favorites">お気に入り</button>
+    </div>
+    
+    <div class="tab-content" id="results-tab">
+      <div id="loading" class="hidden">
+        <p>検索中...<span class="loading-spinner"></span></p>
+      </div>
+      
+      <div id="error-message" class="hidden">
+        <p class="error">エラーが発生しました。もう一度試してください。</p>
+      </div>
+      
+      <div id="no-results" class="hidden">
+        <p>検索結果がありません。別のタイトルを試してください。</p>
+      </div>
+      
+      <div id="search-results" class="hidden">
+        <h2 id="result-title"></h2>
+        <div id="result-stores"></div>
+      </div>
+    </div>
+    
+    <div class="tab-content hidden" id="history-tab">
+      <h2>検索履歴</h2>
+      <div id="history-list">
+        <p>履歴がありません</p>
+      </div>
+    </div>
+    
+    <div class="tab-content hidden" id="favorites-tab">
+      <h2>お気に入り漫画</h2>
+      <div id="favorites-list">
+        <p>お気に入りがありません</p>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <button id="options-button">設定</button>
+    <div class="version">v1.0.0</div>
+  </footer>
+  
+  <template id="store-item-template">
+    <div class="store-item">
+      <div class="store-header">
+        <h3 class="store-name"></h3>
+        <div class="store-price"></div>
+      </div>
+      <div class="store-details">
+        <div class="manga-info">
+          <div class="manga-title"></div>
+          <div class="manga-availability"></div>
+        </div>
+        <div class="actions">
+          <a href="#" class="visit-button" target="_blank">ショップを見る</a>
+          <button class="add-favorite">❤</button>
+        </div>
+      </div>
+    </div>
+  </template>
+  
+  <template id="history-item-template">
+    <div class="history-item">
+      <div class="history-title"></div>
+      <div class="history-actions">
+        <button class="search-again">🔍</button>
+        <button class="remove-history">🗑️</button>
+      </div>
+    </div>
+  </template>
+  
+  <template id="favorite-item-template">
+    <div class="favorite-item">
+      <div class="favorite-title"></div>
+      <div class="favorite-actions">
+        <button class="search-again">🔍</button>
+        <button class="remove-favorite">🗑️</button>
+      </div>
+    </div>
+  </template>
+  
+  <script src="popup.js"></script>
+</body>
+</html> 
