@@ -1,0 +1,16 @@
+{
+  "name": "manga-price-tracker",
+  "version": "1.0.0",
+  "description": "Manga Price Tracker API Server",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "vercel": "^31.0.0"
+  },
+  "type": "module"
+} 
