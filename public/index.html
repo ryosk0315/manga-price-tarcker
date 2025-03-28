@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>漫画価格追跡API</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #2980b9;
+      margin-top: 30px;
+    }
+    code {
+      background-color: #f8f9fa;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    .endpoint {
+      margin-bottom: 20px;
+      border-left: 3px solid #3498db;
+      padding-left: 15px;
+    }
+    .endpoint h3 {
+      margin-bottom: 5px;
+      color: #2980b9;
+    }
+    .endpoint p {
+      margin-top: 5px;
+    }
+    .footer {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #7f8c8d;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>漫画価格追跡API</h1>
+  
+  <p>複数の書店サイトから漫画の価格情報を取得するAPIサーバーです。</p>
+  
+  <h2>使用可能なエンドポイント</h2>
+  
+  <div class="endpoint">
+    <h3>テストエンドポイント</h3>
+    <code>GET /api/hello</code>
+    <p>APIサーバーの動作確認用の簡単なエンドポイントです。</p>
+    <p>使用例: <a href="/api/hello" target="_blank">/api/hello</a></p>
+  </div>
+  
+  <div class="endpoint">
+    <h3>漫画検索</h3>
+    <code>GET /api/search?title={漫画タイトル}</code>
+    <p>指定されたタイトルの漫画を複数の書店サイトで検索し、価格情報を返します。</p>
+    <p>使用例: <a href="/api/search?title=鬼滅の刃" target="_blank">/api/search?title=鬼滅の刃</a></p>
+    
+    <h4>レスポンス例:</h4>
+    <pre><code>{
+  "title": "鬼滅の刃",
+  "timestamp": "2023-05-01T12:34:56.789Z",
+  "stores": [
+    {
+      "store": "Amazon",
+      "title": "鬼滅の刃 1巻",
+      "price": "616円",
+      "url": "https://www.amazon.co.jp/dp/...",
+      "imageUrl": "https://images-amazon.com/...",
+      "availability": "在庫あり"
+    },
+    {
+      "store": "楽天ブックス",
+      "title": "鬼滅の刃 1巻",
+      "price": "693円",
+      "url": "https://books.rakuten.co.jp/...",
+      "imageUrl": "https://thumbnail.image.rakuten.co.jp/...",
+      "availability": "在庫あり"
+    },
+    {
+      "store": "ebookjapan",
+      "title": "鬼滅の刃 1巻",
+      "price": "550円",
+      "url": "https://ebookjapan.yahoo.co.jp/...",
+      "imageUrl": "https://ebookjapan.yahoo.co.jp/...",
+      "availability": "購入可能",
+      "isDigital": true
+    },
+    {
+      "store": "コミックシーモア",
+      "title": "鬼滅の刃 1巻",
+      "price": "495円",
+      "url": "https://www.cmoa.jp/...",
+      "imageUrl": "https://www.cmoa.jp/...",
+      "availability": "配信中",
+      "isDigital": true
+    }
+  ]
+}</code></pre>
+  </div>
+  
+  <h2>Chrome拡張機能</h2>
+  <p>このAPIを利用するChrome拡張機能も開発中です。拡張機能をインストールすると、ブラウザから簡単に漫画の価格比較ができるようになります。</p>
+  
+  <div class="footer">
+    <p>© 2023 漫画価格追跡サービス</p>
+  </div>
+</body>
+</html> 
