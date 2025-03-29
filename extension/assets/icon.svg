@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3498db" />
+      <stop offset="100%" stop-color="#2980b9" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="16" fill="url(#gradient)" />
+  
+  <!-- 本の表現 -->
+  <g transform="translate(24, 24)">
+    <!-- 本1 -->
+    <rect x="0" y="8" width="24" height="72" rx="2" fill="#ecf0f1" />
+    <rect x="4" y="16" width="16" height="4" rx="1" fill="#e74c3c" />
+    <rect x="4" y="24" width="16" height="2" rx="1" fill="#7f8c8d" />
+    <rect x="4" y="30" width="16" height="2" rx="1" fill="#7f8c8d" />
+    <rect x="4" y="36" width="16" height="2" rx="1" fill="#7f8c8d" />
+    
+    <!-- 本2 (傾いた本) -->
+    <g transform="translate(32, 0) rotate(10, 12, 40)">
+      <rect x="0" y="8" width="24" height="72" rx="2" fill="#f1c40f" />
+      <rect x="4" y="16" width="16" height="4" rx="1" fill="#d35400" />
+      <rect x="4" y="24" width="16" height="2" rx="1" fill="#7f8c8d" />
+      <rect x="4" y="30" width="16" height="2" rx="1" fill="#7f8c8d" />
+      <rect x="4" y="36" width="16" height="2" rx="1" fill="#7f8c8d" />
+    </g>
+    
+    <!-- 価格タグ -->
+    <g transform="translate(60, 32)">
+      <rect x="0" y="0" width="30" height="20" rx="4" fill="#e74c3c" />
+      <text x="5" y="14" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff">¥</text>
+      <text x="15" y="14" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff">↓</text>
+    </g>
+  </g>
+</svg> 
