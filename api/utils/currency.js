@@ -1,5 +1,5 @@
 // Currency utility module
-const axios = require('axios');
+import axios from 'axios';
 
 // Cache for exchange rates
 let exchangeRatesCache = {
@@ -86,8 +86,4 @@ async function convertCurrency(amount, fromCurrency, toCurrency) {
   return Math.round(amountInTargetCurrency * 100) / 100;
 }
 
-// Export functions
-module.exports = {
-  getExchangeRates,
-  convertCurrency
-}; 
+export { getExchangeRates, convertCurrency }; 

@@ -1,15 +1,25 @@
 {
   "name": "manga-price-tracker-api",
   "version": "1.0.0",
-  "description": "Manga Price Tracker API Server",
+  "description": "API for Manga Price Tracker Chrome Extension",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "vercel dev",
-    "deploy": "vercel deploy --prod"
+    "deploy": "vercel deploy --prod",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "manga",
+    "price",
+    "tracker",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "axios": "^1.4.0",
-    "jsdom": "^21.1.1"
+    "axios": "^1.6.7",
+    "jsdom": "^24.0.0"
   },
   "devDependencies": {
     "vercel": "^30.0.0"
@@ -17,4 +27,4 @@
   "engines": {
     "node": ">=14.x"
   }
-} 
+}

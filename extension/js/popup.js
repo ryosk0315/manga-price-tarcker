@@ -67,8 +67,19 @@ async function performSearch() {
   hideError();
   
   try {
-    // APIから検索結果を取得
-    const response = await fetch(`${API_BASE_URL}/search?title=${encodeURIComponent(title)}`);
+    // 設定から通貨情報を取得
+    const { currency = 'JPY' } = await chrome.storage.local.get('currency');
+    
+    // 手動で30秒のタイムアウトを設定
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    
+    // APIから検索結果を取得（通貨パラメータ付き）
+    const response = await fetch(
+      `${API_BASE_URL}/search?title=${encodeURIComponent(title)}&currency=${currency}`,
+      { signal: controller.signal }
+    ).finally(() => clearTimeout(timeoutId));
+    
     const result = await response.json();
     
     if (result.error) {
@@ -78,6 +89,11 @@ async function performSearch() {
     
     // 検索結果の表示
     displaySearchResults(title, result);
+    
+    // モックデータの場合は通知
+    if (result.isMockData) {
+      showNotice('注意: 実際のスクレイピングに失敗したため、推定価格を表示しています');
+    }
     
     // 現在の結果を保存
     currentSearchResult = {
@@ -93,7 +109,12 @@ async function performSearch() {
     addToFavoritesButton.classList.remove('hidden');
     
   } catch (error) {
-    showError(error.message || '検索に失敗しました');
+    console.error('検索エラー:', error);
+    if (error.name === 'AbortError') {
+      showError('検索がタイムアウトしました。しばらくしてからもう一度お試しください。');
+    } else {
+      showError(error.message || '検索に失敗しました');
+    }
   } finally {
     hideLoading();
   }
@@ -125,10 +146,15 @@ function displaySearchResults(title, results) {
     hasResults = results.stores.length > 0;
     
     results.stores.forEach(store => {
+      const currencySymbol = getCurrencySymbol(store.currency);
+      const originalPrice = store.originalPrice 
+        ? `<span class="original-price">(${getCurrencySymbol(store.originalCurrency)}${store.originalPrice})</span>` 
+        : '';
+      
       html += `
         <tr>
           <td>${store.store}</td>
-          <td>${store.price}円</td>
+          <td>${currencySymbol}${store.price} ${originalPrice}</td>
           <td>
             ${store.url 
               ? `<a href="${store.url}" target="_blank">開く</a>`
@@ -151,6 +177,20 @@ function displaySearchResults(title, results) {
   
   // HTMLを挿入
   resultsTable.innerHTML = html;
+}
+
+// 通貨記号を取得
+function getCurrencySymbol(currency) {
+  const symbols = {
+    'USD': '$',
+    'JPY': '¥',
+    'EUR': '€',
+    'GBP': '£',
+    'CAD': 'C$',
+    'AUD': 'A$'
+  };
+  
+  return symbols[currency] || currency;
 }
 
 // 履歴に追加
@@ -425,4 +465,18 @@ function showMessage(message) {
     errorContainer.classList.add('hidden');
     errorContainer.classList.remove('success');
   }, 3000);
+}
+
+// 通知メッセージ表示（警告）
+function showNotice(message) {
+  // エラーコンテナを使って一時的に通知メッセージを表示
+  errorMessage.textContent = message;
+  errorContainer.classList.remove('hidden');
+  errorContainer.classList.add('notice');
+  
+  // 6秒後に消える
+  setTimeout(() => {
+    errorContainer.classList.add('hidden');
+    errorContainer.classList.remove('notice');
+  }, 6000);
 } 

@@ -137,6 +137,11 @@ th {
   color: #2e7d32;
 }
 
+#errorContainer.notice {
+  background-color: #fff8e1;
+  color: #ff8f00;
+}
+
 /* タブ */
 .tabs {
   display: flex;
@@ -212,4 +217,59 @@ footer {
 
 #optionsButton:hover {
   background-color: #eee;
+}
+
+/* 検索結果のスタイル */
+#resultsContainer {
+  margin-top: 20px;
+}
+
+#resultsContainer h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+#resultsContainer table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+#resultsContainer th,
+#resultsContainer td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+#resultsContainer th {
+  background-color: #f5f5f5;
+}
+
+#resultsContainer tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* 通貨表示スタイル */
+.original-price {
+  font-size: 0.85em;
+  color: #777;
+  margin-left: 5px;
+  text-decoration: line-through;
+}
+
+/* お気に入りボタン */
+#addToFavoritesButton {
+  display: block;
+  margin: 0 auto;
+  padding: 8px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#addToFavoritesButton:hover {
+  background-color: #45a049;
 } 

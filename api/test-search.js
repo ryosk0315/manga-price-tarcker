@@ -1,107 +1,59 @@
 // Vercel Serverless Function for test search (returns mock data)
 
-/**
- * Mock test data for manga search
- */
-const mockData = {
-  'one piece': {
-    amazon: {
-      title: 'One Piece, Vol. 98',
-      price: 999,
+import { search as amazonSearch } from './scrapers/amazon.js';
+import { search as bookwalkerSearch } from './scrapers/bookwalker.js';
+import { search as rightstufSearch } from './scrapers/rightstuf.js';
+import { convertCurrency } from './utils/currency.js';
+
+// タイムアウト付きのPromise
+function promiseWithTimeout(promise, timeoutMs) {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`Operation timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+  });
+
+  return Promise.race([
+    promise,
+    timeoutPromise
+  ]).finally(() => clearTimeout(timeoutId));
+}
+
+// モックデータを生成（テスト用）
+function generateMockData(title) {
+  return [
+    {
+      store: 'Amazon',
+      title: `${title} 1巻`,
+      price: 418,
       currency: 'JPY',
-      url: 'https://www.amazon.co.jp/dp/4088824415',
-      image: 'https://m.media-amazon.com/images/I/51QFvXvnsrL._SL500_.jpg'
+      url: `https://www.amazon.co.jp/s?k=${encodeURIComponent(title)}`,
+      image: 'https://via.placeholder.com/200x300?text=Amazon'
     },
-    bookwalker: {
-      title: 'ONE PIECE 98',
-      price: 460,
+    {
+      store: 'BookWalker',
+      title: `${title} 1巻（電子書籍）`,
+      price: 400,
       currency: 'JPY',
-      url: 'https://bookwalker.jp/de46af1c08-4e55-4e44-bf37-d48b6b49d8d2/',
-      image: 'https://c.bookwalker.jp/thumbnailkaisou/4088824415.jpg'
+      url: `https://bookwalker.jp/search/?qcat=2&word=${encodeURIComponent(title)}`,
+      image: 'https://via.placeholder.com/200x300?text=BookWalker'
     },
-    rightstuf: {
-      title: 'One Piece Manga Volume 98',
+    {
+      store: 'RightStuf',
+      title: `${title} Vol.1 (English)`,
       price: 9.99,
       currency: 'USD',
-      url: 'https://www.rightstufanime.com/One-Piece-Manga-Volume-98',
-      image: 'https://www.rightstufanime.com/images/productImages/9781974722891_manga-one-piece-98-primary.jpg'
+      url: `https://www.rightstufanime.com/search?keywords=${encodeURIComponent(title)}`,
+      image: 'https://via.placeholder.com/200x300?text=RightStuf'
     }
-  },
-  'naruto': {
-    amazon: {
-      title: 'Naruto, Vol. 72',
-      price: 484,
-      currency: 'JPY',
-      url: 'https://www.amazon.co.jp/dp/4088802128',
-      image: 'https://m.media-amazon.com/images/I/51D4S-Y1dqL._SL500_.jpg'
-    },
-    bookwalker: {
-      title: 'NARUTO -ナルト- 72',
-      price: 460,
-      currency: 'JPY',
-      url: 'https://bookwalker.jp/de68c11e9d-b3cf-42ac-9520-2c6e7bafcb7f/',
-      image: 'https://c.bookwalker.jp/thumbnailkaisou/4088802128.jpg'
-    },
-    rightstuf: {
-      title: 'Naruto Manga Volume 72',
-      price: 9.99,
-      currency: 'USD',
-      url: 'https://www.rightstufanime.com/Naruto-Manga-Volume-72',
-      image: 'https://www.rightstufanime.com/images/productImages/9781421582849_manga-naruto-72-primary.jpg'
-    }
-  },
-  'attack on titan': {
-    amazon: {
-      title: 'Attack on Titan, Vol. 34',
-      price: 506,
-      currency: 'JPY',
-      url: 'https://www.amazon.co.jp/dp/4065219582',
-      image: 'https://m.media-amazon.com/images/I/51DH4PMPCEL._SL500_.jpg'
-    },
-    bookwalker: {
-      title: '進撃の巨人(34)',
-      price: 481,
-      currency: 'JPY',
-      url: 'https://bookwalker.jp/de22e0e861-4c85-49cd-9ba1-a7937984a1cc/',
-      image: 'https://c.bookwalker.jp/thumbnailkaisou/4065219582.jpg'
-    },
-    rightstuf: {
-      title: 'Attack on Titan Manga Volume 34',
-      price: 10.99,
-      currency: 'USD',
-      url: 'https://www.rightstufanime.com/Attack-on-Titan-Manga-Volume-34',
-      image: 'https://www.rightstufanime.com/images/productImages/9781646512331_manga-attack-on-titan-34-primary.jpg'
-    }
-  },
-  'default': {
-    amazon: {
-      title: 'Sample Manga',
-      price: 500,
-      currency: 'JPY',
-      url: 'https://www.amazon.co.jp/sample',
-      image: 'https://via.placeholder.com/150'
-    },
-    bookwalker: {
-      title: 'サンプル漫画',
-      price: 450,
-      currency: 'JPY',
-      url: 'https://bookwalker.jp/sample',
-      image: 'https://via.placeholder.com/150'
-    },
-    rightstuf: {
-      title: 'Sample Manga (English)',
-      price: 9.99,
-      currency: 'USD',
-      url: 'https://www.rightstufanime.com/sample',
-      image: 'https://via.placeholder.com/150'
-    }
-  }
-};
+  ];
+}
 
 /**
  * Main handler for test search API
  */
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -115,11 +67,14 @@ module.exports = async (req, res) => {
   
   // Only support GET requests
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ 
+      error: 'Method not allowed',
+      message: 'このエンドポイントはGETリクエストのみサポートしています'
+    });
   }
   
   // Get search query
-  const { title } = req.query;
+  const { title = 'ワンピース', currency = 'JPY', mode = 'auto' } = req.query;
   
   if (!title) {
     return res.status(400).json({ error: 'Missing title parameter' });
@@ -128,24 +83,139 @@ module.exports = async (req, res) => {
   // Simulate 500ms network delay
   await new Promise(resolve => setTimeout(resolve, 500));
   
-  // Find matching data or use default
-  const searchTitle = title.toLowerCase();
-  let result;
-  
-  if (searchTitle.includes('one piece')) {
-    result = mockData['one piece'];
-  } else if (searchTitle.includes('naruto')) {
-    result = mockData['naruto'];
-  } else if (searchTitle.includes('attack on titan') || searchTitle.includes('shingeki')) {
-    result = mockData['attack on titan'];
-  } else {
-    result = mockData['default'];
+  try {
+    console.log(`テスト検索: "${title}"`);
     
-    // Customize the default result with the search title
-    result.amazon.title = `${title} (Amazon)`;
-    result.bookwalker.title = `${title} (BookWalker)`;
-    result.rightstuf.title = `${title} (RightStuf)`;
+    // 強制的にモックデータを使用するモード
+    if (mode === 'mock') {
+      const mockStores = generateMockData(title);
+      
+      // モックデータの通貨換算
+      for (const store of mockStores) {
+        if (currency !== store.currency) {
+          store.originalPrice = store.price;
+          store.originalCurrency = store.currency;
+          store.price = await convertCurrency(store.price, store.currency, currency);
+          store.currency = currency;
+        }
+      }
+      
+      return res.status(200).json({
+        title,
+        timestamp: new Date().toISOString(),
+        requestedCurrency: currency,
+        stores: mockStores,
+        isMockData: true,
+        message: '⚠️ モックデータを表示しています。これはテスト用APIです。'
+      });
+    }
+    
+    // 各ストアでのテスト検索
+    let stores = [];
+    let errors = [];
+    let usedMockData = false;
+    
+    try {
+      // 各ストアでの検索を並列実行（タイムアウト10秒）
+      const [amazonResult, bookwalkerResult, rightstufResult] = await Promise.allSettled([
+        promiseWithTimeout(amazonSearch(title), 10000),
+        promiseWithTimeout(bookwalkerSearch(title), 10000),
+        promiseWithTimeout(rightstufSearch(title), 10000)
+      ]);
+      
+      // Amazonの結果を追加
+      if (amazonResult.status === 'fulfilled' && !amazonResult.value.error) {
+        const result = amazonResult.value;
+        // 通貨換算（必要な場合）
+        if (currency !== result.currency) {
+          result.originalPrice = result.price;
+          result.originalCurrency = result.currency;
+          result.price = await convertCurrency(result.price, result.currency, currency);
+          result.currency = currency;
+        }
+        stores.push(result);
+      } else {
+        const errorMsg = amazonResult.status === 'rejected' 
+          ? amazonResult.reason.message
+          : (amazonResult.value?.error || 'Unknown error');
+        errors.push({ store: 'Amazon', error: errorMsg });
+      }
+      
+      // BookWalkerの結果を追加
+      if (bookwalkerResult.status === 'fulfilled' && !bookwalkerResult.value.error) {
+        const result = bookwalkerResult.value;
+        // 通貨換算（必要な場合）
+        if (currency !== result.currency) {
+          result.originalPrice = result.price;
+          result.originalCurrency = result.currency;
+          result.price = await convertCurrency(result.price, result.currency, currency);
+          result.currency = currency;
+        }
+        stores.push(result);
+      } else {
+        const errorMsg = bookwalkerResult.status === 'rejected' 
+          ? bookwalkerResult.reason.message
+          : (bookwalkerResult.value?.error || 'Unknown error');
+        errors.push({ store: 'BookWalker', error: errorMsg });
+      }
+      
+      // RightStufの結果を追加
+      if (rightstufResult.status === 'fulfilled' && !rightstufResult.value.error) {
+        const result = rightstufResult.value;
+        // 通貨換算（必要な場合）
+        if (currency !== result.currency) {
+          result.originalPrice = result.price;
+          result.originalCurrency = result.currency;
+          result.price = await convertCurrency(result.price, result.currency, currency);
+          result.currency = currency;
+        }
+        stores.push(result);
+      } else {
+        const errorMsg = rightstufResult.status === 'rejected' 
+          ? rightstufResult.reason.message
+          : (rightstufResult.value?.error || 'Unknown error');
+        errors.push({ store: 'RightStuf', error: errorMsg });
+      }
+    } catch (error) {
+      console.error('Parallel search error:', error);
+      errors.push({ general: error.message });
+    }
+    
+    // 結果がない場合はモックデータを使用
+    if (stores.length === 0) {
+      stores = generateMockData(title);
+      usedMockData = true;
+      
+      // モックデータの通貨換算
+      for (const store of stores) {
+        if (currency !== store.currency) {
+          store.originalPrice = store.price;
+          store.originalCurrency = store.currency;
+          store.price = await convertCurrency(store.price, store.currency, currency);
+          store.currency = currency;
+        }
+      }
+    }
+    
+    // 結果を返す
+    console.log(`テスト検索完了: "${title}" (${stores.length}件の結果, ${errors.length}件のエラー)`);
+    
+    return res.status(200).json({
+      title,
+      timestamp: new Date().toISOString(),
+      requestedCurrency: currency,
+      stores,
+      errors: errors.length > 0 ? errors : undefined,
+      isMockData: usedMockData,
+      message: '⚠️ これはテスト用APIです。本番環境では /api/search を使用してください。'
+    });
+    
+  } catch (error) {
+    console.error('テスト検索エラー:', error);
+    return res.status(500).json({ 
+      error: 'Internal Server Error',
+      message: 'サーバー内部でエラーが発生しました。',
+      detail: error.message
+    });
   }
-  
-  return res.status(200).json(result);
-}; 
+} 

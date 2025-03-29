@@ -1,5 +1,7 @@
 // バックグラウンドサービスワーカー
-const API_BASE_URL = 'https://your-vercel-deployment.vercel.app/api';
+// const API_BASE_URL = 'https://your-vercel-deployment.vercel.app/api';
+// 以下のように変更（デプロイ後にVercelから提供されるURLに置き換えてください）
+const API_BASE_URL = 'https://manga-price-tarcker.vercel.app/api';
 
 // 初期化処理
 chrome.runtime.onInstalled.addListener(() => {
@@ -131,8 +133,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // 漫画検索
 async function searchManga(title) {
   try {
+    // 設定から通貨情報を取得
+    const { currency = 'JPY' } = await chrome.storage.local.get('currency');
+    
     // APIを呼び出して検索
-    const response = await fetch(`${API_BASE_URL}/search?title=${encodeURIComponent(title)}`);
+    const response = await fetch(`${API_BASE_URL}/search?title=${encodeURIComponent(title)}&currency=${currency}`);
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
