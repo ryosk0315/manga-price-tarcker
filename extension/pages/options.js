@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // DOM要素
   const notificationsEnabledCheckbox = document.getElementById('notifications-enabled');
   const checkIntervalSelect = document.getElementById('check-interval');
+  const useMockDataCheckbox = document.getElementById('use-mock-data');
   const favoritesCountElement = document.getElementById('favorites-count');
   const historyCountElement = document.getElementById('history-count');
   const clearHistoryButton = document.getElementById('clear-history');
@@ -28,13 +29,15 @@ document.addEventListener('DOMContentLoaded', async () => {
    */
   async function loadSettings() {
     try {
-      const { notificationsEnabled, checkInterval } = await chrome.storage.sync.get([
+      const { notificationsEnabled, checkInterval, useMockData } = await chrome.storage.sync.get([
         'notificationsEnabled',
-        'checkInterval'
+        'checkInterval',
+        'useMockData'
       ]);
       
       // チェックボックスの状態を設定
       notificationsEnabledCheckbox.checked = notificationsEnabled !== false; // デフォルトはtrue
+      useMockDataCheckbox.checked = useMockData !== false; // デフォルトはtrue
       
       // チェック間隔の選択状態を設定
       if (checkInterval) {
@@ -71,7 +74,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const settings = {
         notificationsEnabled: notificationsEnabledCheckbox.checked,
-        checkInterval: parseInt(checkIntervalSelect.value, 10)
+        checkInterval: parseInt(checkIntervalSelect.value, 10),
+        useMockData: useMockDataCheckbox.checked
       };
       
       // ストレージに保存

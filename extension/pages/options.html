@@ -113,6 +113,12 @@
     .warning {
       color: #e74c3c;
     }
+    
+    .info-text {
+      font-size: 13px;
+      color: #666;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
@@ -139,6 +145,19 @@
           <option value="48">48時間ごと</option>
           <option value="72">72時間ごと</option>
         </select>
+      </div>
+    </div>
+    
+    <div class="settings-section">
+      <h2>APIとデータ設定</h2>
+      
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="use-mock-data">
+          モックデータを使用する（推奨）
+        </label>
+        <p class="info-text">チェックを入れるとテスト用のデータを使用します。サーバー負荷軽減のため通常はこの設定を使用してください。</p>
+        <p class="info-text">チェックを外すと実際のスクレイピングデータを取得しますが、タイムアウトする可能性があります。</p>
       </div>
     </div>
     

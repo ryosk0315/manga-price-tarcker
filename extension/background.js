@@ -19,7 +19,8 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       notificationsEnabled: true,
       checkInterval: 24, // デフォルトは24時間ごと
       favoriteMangas: [],
-      searchHistory: []
+      searchHistory: [],
+      useMockData: true // デフォルトでモックデータを使用する
     });
     
     console.log('初期設定が完了しました');
@@ -52,8 +53,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 async function checkPricesForFavorites(favorites) {
   for (const manga of favorites) {
     try {
-      // APIから最新の価格情報を取得
-      const response = await fetch(`${API_BASE_URL}/search?title=${encodeURIComponent(manga.title)}`);
+      // APIから最新の価格情報を取得（モックデータを使用）
+      const response = await fetch(`${API_BASE_URL}/search?title=${encodeURIComponent(manga.title)}&mock=true`);
       
       if (!response.ok) {
         console.error(`API呼び出しエラー: ${response.status}`);
@@ -158,7 +159,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
  */
 async function searchManga(title) {
   try {
-    const response = await fetch(`${API_BASE_URL}/search?title=${encodeURIComponent(title)}`);
+    // モックデータを常に使用するかどうかの設定を取得
+    const { useMockData = true } = await chrome.storage.sync.get('useMockData');
+    const mockParam = useMockData ? '&mock=true' : '';
+    
+    const response = await fetch(`${API_BASE_URL}/search?title=${encodeURIComponent(title)}${mockParam}`);
     
     if (!response.ok) {
       throw new Error(`API呼び出しエラー: ${response.status}`);
