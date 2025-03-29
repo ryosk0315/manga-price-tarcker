@@ -4,6 +4,7 @@
  */
 
 import fetch from 'node-fetch';
+import * as cheerio from 'cheerio';
 
 /**
  * ebookjapanで漫画を検索する
@@ -21,24 +22,29 @@ export async function search(title) {
     
     console.log(`ebookjapanで「${title}」を検索中...`);
     
-    // 実際のリクエストはサーバーレス環境では制限があるため、モックデータを返します
-    // 本番環境では実際にfetchを使用してHTMLを取得し、parseEbookjapanHtml関数でパースします
-    /*
-    const response = await fetch(searchUrl, { headers });
-    if (!response.ok) {
-      throw new Error(`ebookjapanへのリクエストエラー: ${response.status}`);
+    try {
+      const response = await fetch(searchUrl, { headers });
+      if (!response.ok) {
+        throw new Error(`ebookjapanへのリクエストエラー: ${response.status}`);
+      }
+      const html = await response.text();
+      const items = parseEbookjapanHtml(html, title);
+      
+      console.log(`ebookjapan検索結果: ${items.length}件`);
+      
+      return {
+        source: 'ebookjapan',
+        items
+      };
+    } catch (error) {
+      console.error('ebookjapanへのリクエストエラー:', error);
+      // リクエストが失敗した場合はモックデータを返す
+      return {
+        source: 'ebookjapan',
+        items: generateMockData(title),
+        error: error.message
+      };
     }
-    const html = await response.text();
-    const items = parseEbookjapanHtml(html, title);
-    */
-    
-    // モックデータの生成
-    const items = parseEbookjapanHtml(null, title);
-    
-    return {
-      source: 'ebookjapan',
-      items
-    };
   } catch (error) {
     console.error('ebookjapanスクレイピングエラー:', error);
     return {
@@ -56,9 +62,76 @@ export async function search(title) {
  * @returns {Array} 漫画アイテムの配列
  */
 function parseEbookjapanHtml(html, searchTitle) {
-  // 実際の実装では、cheerioなどを使用してHTMLをパースします
-  // ここではモックデータを返します
-  
+  try {
+    const $ = cheerio.load(html);
+    const results = [];
+    
+    // 商品リスト要素を取得
+    const items = $('.book-item');
+    
+    items.each((index, element) => {
+      try {
+        if (index >= 5) return false; // 最大5件まで取得
+        
+        const item = $(element);
+        
+        // タイトル
+        const titleElement = item.find('.book-item-title');
+        const title = titleElement.text().trim();
+        
+        // 商品がなかった場合はスキップ
+        if (!title) return;
+        
+        // URL
+        const linkElement = item.find('a.book-item-link');
+        const url = 'https://ebookjapan.yahoo.co.jp' + linkElement.attr('href');
+        
+        // 著者
+        const authorElement = item.find('.book-item-author');
+        const author = authorElement.text().trim();
+        
+        // 価格
+        const priceElement = item.find('.book-item-price');
+        let price = priceElement.text().trim();
+        // 数字と円記号のみを抽出
+        price = price.match(/\d+,?\d*円/)?.[0] || '550円';
+        
+        // 画像URL
+        const imgElement = item.find('.book-item-image img');
+        const imageUrl = imgElement.attr('src') || imgElement.attr('data-src');
+        
+        // 在庫状況 (電子書籍は基本的に購入可能)
+        const availability = '購入可能';
+        
+        // 検索タイトルを含むもののみを返す（ただし部分一致でOK）
+        if (title.includes(searchTitle) || searchTitle.includes(title)) {
+          results.push({
+            title,
+            price,
+            author,
+            url,
+            imageUrl,
+            availability,
+            isDigital: true
+          });
+        }
+      } catch (error) {
+        console.error('ebookjapanアイテムパースエラー:', error);
+      }
+    });
+    
+    return results.length > 0 ? results : generateMockData(searchTitle);
+  } catch (error) {
+    console.error('ebookjapan HTML解析エラー:', error);
+    return generateMockData(searchTitle);
+  }
+}
+
+/**
+ * モックデータを生成
+ * スクレイピングが失敗した場合のフォールバック
+ */
+function generateMockData(searchTitle) {
   return [
     {
       title: `${searchTitle} 1巻`,

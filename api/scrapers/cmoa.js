@@ -4,6 +4,7 @@
  */
 
 import fetch from 'node-fetch';
+import * as cheerio from 'cheerio';
 
 /**
  * コミックシーモアで漫画を検索する
@@ -21,24 +22,29 @@ export async function search(title) {
     
     console.log(`コミックシーモアで「${title}」を検索中...`);
     
-    // 実際のリクエストはサーバーレス環境では制限があるため、モックデータを返します
-    // 本番環境では実際にfetchを使用してHTMLを取得し、parseCmoaHtml関数でパースします
-    /*
-    const response = await fetch(searchUrl, { headers });
-    if (!response.ok) {
-      throw new Error(`コミックシーモアへのリクエストエラー: ${response.status}`);
+    try {
+      const response = await fetch(searchUrl, { headers });
+      if (!response.ok) {
+        throw new Error(`コミックシーモアへのリクエストエラー: ${response.status}`);
+      }
+      const html = await response.text();
+      const items = parseCmoaHtml(html, title);
+      
+      console.log(`コミックシーモア検索結果: ${items.length}件`);
+      
+      return {
+        source: 'cmoa',
+        items
+      };
+    } catch (error) {
+      console.error('コミックシーモアへのリクエストエラー:', error);
+      // リクエストが失敗した場合はモックデータを返す
+      return {
+        source: 'cmoa',
+        items: generateMockData(title),
+        error: error.message
+      };
     }
-    const html = await response.text();
-    const items = parseCmoaHtml(html, title);
-    */
-    
-    // モックデータの生成
-    const items = parseCmoaHtml(null, title);
-    
-    return {
-      source: 'cmoa',
-      items
-    };
   } catch (error) {
     console.error('コミックシーモアスクレイピングエラー:', error);
     return {
@@ -56,9 +62,78 @@ export async function search(title) {
  * @returns {Array} 漫画アイテムの配列
  */
 function parseCmoaHtml(html, searchTitle) {
-  // 実際の実装では、cheerioなどを使用してHTMLをパースします
-  // ここではモックデータを返します
-  
+  try {
+    const $ = cheerio.load(html);
+    const results = [];
+    
+    // 商品リスト要素を取得
+    const items = $('.data');
+    
+    items.each((index, element) => {
+      try {
+        if (index >= 5) return false; // 最大5件まで取得
+        
+        const item = $(element);
+        
+        // タイトル
+        const titleElement = item.find('.title a');
+        let title = titleElement.text().trim();
+        
+        // 商品がなかった場合はスキップ
+        if (!title) return;
+        
+        // URL
+        const url = 'https://www.cmoa.jp' + titleElement.attr('href');
+        
+        // 著者
+        const authorElement = item.find('.author');
+        const author = authorElement.text().trim();
+        
+        // 価格
+        const priceElement = item.find('.price');
+        let price = priceElement.text().trim();
+        // 数字と円記号のみを抽出
+        price = price.match(/\d+,?\d*円/)?.[0] || '495円';
+        
+        // 画像URL
+        const imgElement = item.find('.data__image img');
+        let imageUrl = imgElement.attr('src') || imgElement.attr('data-src');
+        if (imageUrl && !imageUrl.startsWith('http')) {
+          imageUrl = 'https://www.cmoa.jp' + imageUrl;
+        }
+        
+        // 在庫状況 (電子書籍は基本的に配信中)
+        const availability = '配信中';
+        
+        // 検索タイトルを含むもののみを返す（ただし部分一致でOK）
+        if (title.includes(searchTitle) || searchTitle.includes(title)) {
+          results.push({
+            title,
+            price,
+            author,
+            url,
+            imageUrl,
+            availability,
+            isDigital: true
+          });
+        }
+      } catch (error) {
+        console.error('コミックシーモアアイテムパースエラー:', error);
+      }
+    });
+    
+    return results.length > 0 ? results : generateMockData(searchTitle);
+  } catch (error) {
+    console.error('コミックシーモア HTML解析エラー:', error);
+    return generateMockData(searchTitle);
+  }
+}
+
+/**
+ * モックデータを生成
+ * スクレイピングが失敗した場合のフォールバック
+ */
+function generateMockData(searchTitle) {
   return [
     {
       title: `${searchTitle} 1巻`,

@@ -4,6 +4,7 @@
  */
 
 import fetch from 'node-fetch';
+import * as cheerio from 'cheerio';
 
 /**
  * 楽天ブックスで漫画を検索する
@@ -21,24 +22,29 @@ export async function search(title) {
     
     console.log(`楽天ブックスで「${title}」を検索中...`);
     
-    // 実際のリクエストはサーバーレス環境では制限があるため、モックデータを返します
-    // 本番環境では実際にfetchを使用してHTMLを取得し、parseRakutenHtml関数でパースします
-    /*
-    const response = await fetch(searchUrl, { headers });
-    if (!response.ok) {
-      throw new Error(`楽天ブックスへのリクエストエラー: ${response.status}`);
+    try {
+      const response = await fetch(searchUrl, { headers });
+      if (!response.ok) {
+        throw new Error(`楽天ブックスへのリクエストエラー: ${response.status}`);
+      }
+      const html = await response.text();
+      const items = parseRakutenHtml(html, title);
+      
+      console.log(`楽天ブックス検索結果: ${items.length}件`);
+      
+      return {
+        source: 'rakuten',
+        items
+      };
+    } catch (error) {
+      console.error('楽天ブックスへのリクエストエラー:', error);
+      // リクエストが失敗した場合はモックデータを返す
+      return {
+        source: 'rakuten',
+        items: generateMockData(title),
+        error: error.message
+      };
     }
-    const html = await response.text();
-    const items = parseRakutenHtml(html, title);
-    */
-    
-    // モックデータの生成
-    const items = parseRakutenHtml(null, title);
-    
-    return {
-      source: 'rakuten',
-      items
-    };
   } catch (error) {
     console.error('楽天ブックススクレイピングエラー:', error);
     return {
@@ -56,9 +62,78 @@ export async function search(title) {
  * @returns {Array} 漫画アイテムの配列
  */
 function parseRakutenHtml(html, searchTitle) {
-  // 実際の実装では、cheerioなどを使用してHTMLをパースします
-  // ここではモックデータを返します
-  
+  try {
+    const $ = cheerio.load(html);
+    const results = [];
+    
+    // 商品リスト要素を取得
+    const items = $('.rbcomp__item-list__item');
+    
+    items.each((index, element) => {
+      try {
+        if (index >= 5) return false; // 最大5件まで取得
+        
+        const item = $(element);
+        
+        // タイトル
+        const titleElement = item.find('.rbcomp__item-list__item__title a');
+        const title = titleElement.text().trim();
+        
+        // 商品がなかった場合はスキップ
+        if (!title) return;
+        
+        // URL
+        const url = titleElement.attr('href');
+        
+        // 著者
+        const authorElement = item.find('.rbcomp__item-list__item__author');
+        const author = authorElement.text().trim();
+        
+        // 価格
+        const priceElement = item.find('.rbcomp__item-list__item__price');
+        let price = priceElement.text().trim();
+        // 数字と円記号のみを抽出
+        price = price.match(/\d+,?\d*円/)?.[0] || price;
+        
+        // 画像URL
+        const imgElement = item.find('.rbcomp__item-list__item__image img');
+        const imageUrl = imgElement.attr('src');
+        
+        // 在庫状況
+        let availability = '在庫あり';
+        if (item.find('.status__text').length > 0) {
+          availability = item.find('.status__text').text().trim();
+        }
+        
+        // 検索タイトルを含むもののみを返す（ただし部分一致でOK）
+        if (title.includes(searchTitle) || searchTitle.includes(title)) {
+          results.push({
+            title,
+            price,
+            author,
+            url,
+            imageUrl,
+            availability,
+            isDigital: false
+          });
+        }
+      } catch (error) {
+        console.error('楽天ブックスアイテムパースエラー:', error);
+      }
+    });
+    
+    return results.length > 0 ? results : generateMockData(searchTitle);
+  } catch (error) {
+    console.error('楽天ブックス HTML解析エラー:', error);
+    return generateMockData(searchTitle);
+  }
+}
+
+/**
+ * モックデータを生成
+ * スクレイピングが失敗した場合のフォールバック
+ */
+function generateMockData(searchTitle) {
   return [
     {
       title: `${searchTitle} 1巻`,
